@@ -22,8 +22,8 @@
                                 <rect key="frame" x="162.5" y="607" width="50" height="50"/>
                                 <color key="backgroundColor" red="1" green="0.57637232540000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="50" id="UC9-8j-zSs"/>
-                                    <constraint firstAttribute="height" constant="50" id="rX2-vH-YH9"/>
+                                    <constraint firstAttribute="height" constant="50" id="1PY-Ej-jEx"/>
+                                    <constraint firstAttribute="width" constant="50" id="Yhl-z2-wB0"/>
                                 </constraints>
                                 <state key="normal" image="arrow"/>
                                 <connections>
@@ -67,14 +67,14 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.88627450980392153" green="0.90588235294117647" blue="0.94117647058823528" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="phd-bL-wOV" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ot2-1U-jyC"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="l4M-yt-G7Y" secondAttribute="trailing" constant="65" id="QdQ-KW-z8D"/>
                             <constraint firstItem="l4M-yt-G7Y" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Zmt-zn-EXA"/>
                             <constraint firstItem="l4M-yt-G7Y" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="65" id="exM-2X-QAt"/>
-                            <constraint firstItem="phd-bL-wOV" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mFL-xQ-G9F"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="l4M-yt-G7Y" secondAttribute="bottom" constant="68" id="oUk-WY-M54"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="phd-bL-wOV" secondAttribute="bottom" constant="10" id="qdw-LM-xO9"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="phd-bL-wOV" secondAttribute="bottom" constant="10" id="vSG-a0-ZRO"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

@@ -20,10 +20,11 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
     
     fileprivate let kRotationAnimation = "kRotationAnimation"
     
-    fileprivate let shapeLayer = CAShapeLayer()
-    fileprivate let gradientLayer = CAGradientLayer()
+    let shapeLayer = CAShapeLayer()
+    let gradientLayer = CAGradientLayer()
     
     var lastLocation: CGPoint?
+    
     var buttonBottom: Int {
         return Int(screenHeight) - Int(swipableButton.convert(CGPoint(x: 0, y: 0), to: view).y + swipableButton.bounds.height)
     }
@@ -36,14 +37,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         return UIScreen.main.bounds.width
     }
     
-    var buttonStartX: CGFloat {
-        return (swipableButton.center.x - swipableButton.bounds.width/2)
-    }
-    
-    var buttonEndX: CGFloat {
-        return (swipableButton.center.x + swipableButton.bounds.width/2)
-    }
-    
     var buttonStartY: CGFloat {
         return swipableButton.center.y
     }
@@ -52,20 +45,19 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         return UIScreen.main.bounds.height/4
     }
     
-    let progressiveBackgroundColor: UIColor = UIColor(red: 97/255.0, green: 154/255.0, blue: 242/255.0, alpha: 1)
-    
     var buttonInitialYPosition: CGFloat = 0.0
+    
+    let progressiveBackgroundColor: UIColor = UIColor(red: 97/255.0, green: 154/255.0, blue: 242/255.0, alpha: 1)
+    let initialBackgroundColor: UIColor = UIColor(red: 203/255.0, green: 217/255.0, blue: 239/255.0, alpha: 1)
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureShapeLayer()
         
-        let swipeGesture = UIPanGestureRecognizer(target: self, action: #selector(draggedView(_:)))
-        swipableButton.isUserInteractionEnabled = true
-        swipableButton.addGestureRecognizer(swipeGesture)
+        configureGesture()
         
-        buttonInitialYPosition = UIScreen.main.bounds.height - swipableButton.bounds.height - 20
-
+        buttonInitialYPosition = screenHeight - swipableButton.bounds.height - 20
     }
     
     override func viewDidLayoutSubviews() {
@@ -87,45 +79,53 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         view.backgroundColor = progressiveBackgroundColor
     }
     
-    func resetView() {
-        shapeLayer.removeAllAnimations()
-    }
-    
-    fileprivate func configureShapeLayer() {
-        // Do any additional setup after loading the view, typically from a nib.
-        
+    private func configureShapeLayer() {
         shapeLayer.lineWidth = 1.0
         shapeLayer.fillColor = UIColor.blue.cgColor
         shapeLayer.strokeColor = UIColor.blue.cgColor
         shapeLayer.actions = ["strokeEnd" : NSNull(), "transform" : NSNull()]
         shapeLayer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-//        view.layer.addSublayer(shapeLayer)
         view.layer.addSublayer(gradientLayer)
-        
+    }
+    
+    private func configureGesture() {
+        let swipeGesture = UIPanGestureRecognizer(target: self, action: #selector(draggedView(_:)))
+        swipableButton.isUserInteractionEnabled = true
+        swipableButton.addGestureRecognizer(swipeGesture)
     }
     
     private func handleBeginAction() {
+        // reset button to initial identity
         swipableButton.transform = .identity
+        
+        // reset autolayout constraints
+        swipableButton.translatesAutoresizingMaskIntoConstraints = true
         lastLocation = swipableButton.center
         view.layer.addSublayer(gradientLayer)
     }
     
     private func handleChangeAction(sender: UIPanGestureRecognizer) {
-        guard let location = lastLocation, let senderGesture = sender as? UIPanGestureRecognizer else { return }
-        let translation = senderGesture.translation(in: swipableButton)
+        guard let location = lastLocation else { return }
+        let translation = sender.translation(in: swipableButton)
 
         let newY = location.y + translation.y
+        
+        // move button on dragging
         swipableButton.center = CGPoint(x: location.x, y: newY)
         
-        //  map to 0 to 1
+        // change background alpha based on dragging
         let alphaValue = newY * (1/buttonInitialYPosition)
         view.backgroundColor = progressiveBackgroundColor.withAlphaComponent(alphaValue)
+        
+        // animate button
         animateView()
         addDampingAnimation()
+        
+        // add gradient color
         addGradientColor()
     }
     
-    func arrangeOptionsView() {
+    private func arrangeOptionsView() {
         optionsView.isHidden = false
         
         optionsView.frame = CGRect(x: optionsView.frame.origin.x, y: swipableButton.frame.origin.y + swipableButton.bounds.height + 5, width: optionsView.bounds.width, height: optionsView.bounds.height)
@@ -134,21 +134,32 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private func handleGestureEndedAction() {
         gradientLayer.removeFromSuperlayer()
+        
+        // rotate button animation
         rotateButton()
 
+        // check if button is dragged beyond the required position
         if buttonBottom > Int(buttonSwipeLimitYPosition) {
-            UIView.animate(withDuration: 0.1) { [weak self] in
+            UIView.animate(withDuration: 0.1, animations: { [weak self] in
                 guard let welf = self else { return }
-                welf.swipableButton.center = CGPoint(x: welf.swipableButton.center.x, y: UIScreen.main.bounds.height - welf.buttonSwipeLimitYPosition)
+                
+                // move button to new position
+                welf.swipableButton.center = CGPoint(x: welf.swipableButton.center.x, y: welf.screenHeight - welf.buttonSwipeLimitYPosition)
+                
+                // draw path
                 welf.animateView()
+                
+                // add spring animation
                 welf.addDampingAnimation()
+                
+                // change color
                 welf.changeBackgroundColor()
                 
                 // show options view
-//                welf.arrangeOptionsView()
-                
+                welf.arrangeOptionsView()
+            }) { [weak self] (completed) in
                 // change button image
-                welf.swipableButton.setImage(UIImage(named: "close"), for: .normal)
+                self?.swipableButton.setImage(UIImage(named: "close"), for: .normal)
             }
         }
         else {
@@ -158,26 +169,26 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private func resetToInitialPostions() {
         
-        // reset button image
-        swipableButton.setImage(UIImage(named: "arrow"), for: .normal)
-        
         // hide options view
         optionsView.isHidden = true
         
         // animate button down, and change background color
         UIView.animate(withDuration: 0.5, animations: { [weak self] in
             guard let welf = self else { return }
+            
+            // reset button position
             welf.swipableButton.frame = CGRect(x: welf.swipableButton.frame.origin.x, y: welf.buttonInitialYPosition, width: welf.swipableButton.bounds.width, height: welf.swipableButton.bounds.height)
         }) { [weak self] (completed) in
-            self?.view.backgroundColor = .white
+            
+            // reset background color
+            self?.view.backgroundColor = self?.initialBackgroundColor ?? .white
+            
+            // reset button image
+            self?.swipableButton.setImage(UIImage(named: "arrow"), for: .normal)
         }
     }
-
-    @IBAction func buttonAction(_ sender: UIButton) {
-        resetToInitialPostions()
-    }
     
-    func animateView() {
+    private func animateView() {
         
         let buttonCentre = swipableButton.center
         
@@ -217,17 +228,9 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
             to: CGPoint(x: screenWidth, y: screenHeight)
         )
         self.shapeLayer.path = bezierPath1.cgPath
-        
     }
     
-    fileprivate func addScalingANimation() {
-        UIView.animate(withDuration: 0.2) { [weak self] in
-            let scale = CGAffineTransform(scaleX: 1.5, y: 1.5)
-            self?.swipableButton.transform = scale
-        }
-    }
-    
-    func addDampingAnimation() {
+    private func addDampingAnimation() {
         let spring = CASpringAnimation(keyPath: "position.y")
         spring.damping = 5
         spring.fromValue = shapeLayer.position.y
@@ -237,7 +240,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         
     }
     
-    fileprivate func addGradientColor() {
+    private func addGradientColor() {
         gradientLayer.frame = shapeLayer.frame
         gradientLayer.colors = [UIColor.blue.cgColor,
                                 UIColor.red.cgColor]
@@ -246,10 +249,14 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         gradientLayer.mask = shapeLayer
     }
     
-    fileprivate func rotateButton() {
+    private func rotateButton() {
         UIView.animate(withDuration: 0.5) { [weak self] in
             self?.swipableButton.transform = CGAffineTransform.init(rotationAngle: CGFloat(Double.pi))
         }
+    }
+    
+    @IBAction func buttonAction(_ sender: UIButton) {
+        resetToInitialPostions()
     }
 }
 
