@@ -163,11 +163,11 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
         else {
-            resetToInitialPostions()
+            resetToInitialPositions()
         }
     }
     
-    private func resetToInitialPostions() {
+    private func resetToInitialPositions() {
         
         // hide options view
         optionsView.isHidden = true
@@ -256,7 +256,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func buttonAction(_ sender: UIButton) {
-        resetToInitialPostions()
+        resetToInitialPositions()
     }
 }
 
